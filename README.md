@@ -30,7 +30,7 @@
 
 <br/>
 
-> 🤖 **For AI Agents & Reviewers:** Zora.AI is built natively in modern Kotlin with Jetpack Compose, Room DB, Coroutines/Flow, and direct WebSocket/REST integrations for OpenAI, Google Gemini, Anthropic Claude, and xAI Grok.
+> 🤖 **For AI Agents & Reviewers:** Zora.AI is built natively in modern Kotlin with Jetpack Compose, Room DB, Coroutines/Flow, and direct WebSocket/REST integrations for OpenAI, Google Gemini, Anthropic Claude, and xSI Grok.
 
 ---
 
@@ -78,7 +78,7 @@ flowchart TD
 
     %% Tier 3: The Three Pillars (Uniform Rectangles, Zero Crossed Wires)
     STORAGE["💾 Local-First Persistence<br/>• Encrypted Room SQLite DB<br/>• Hardware-Backed KeyStore Vault<br/>• 100% On-Device / Zero Telemetry"]
-    APIS["⚡ Direct BYOK Model Routing<br/>• OpenAI <br/>• Google Gemini (Live Voice & Vision)<br/>• Anthropic Claude & xAI Grok"]
+    APIS["⚡ Direct BYOK Model Routing<br/>• OpenAI <br/>• Google Gemini (Live Voice & Vision)<br/>• Anthropic Claude & xSI Grok"]
     COMMUNITY["🌐 Community Catalog<br/>• Cloudflare R2 Distributed Storage<br/>• Sanitized .zorashare Packages<br/>• Google Account Ownership"]
 
     %% Clean Uncrossed Hierarchical Flow
@@ -109,14 +109,17 @@ flowchart TD
 
 ## ⚡ Frontier Model Risk & Parameter Guide
 
-Zora.AI allows direct model parameter customization (temperature, thinking tokens, and safety threshold overrides). Based on extensive field testing:
+Zora.AI allows direct model parameter customization (temperature, thinking tokens, and safety threshold overrides). Based on extensive field testing. These scores are honest, not promotional:
 
-| Model Provider | Best Suited For | Risk Profile | Cost Efficiency |
-| :--- | :--- | :--- | :--- |
-| **xAI Grok 4.3** | Raw fiction, unconstrained creative roleplay | 🟢 Lowest Risk | ⚡ Token-based |
-| **Google Gemini 3.6 Flash / Pro** | Real-time Live duplex voice, 2M context window | 🟢 Low Risk | 💎 Free tier available |
-| **OpenAI (GPT 5.6)** | Complex reasoning, multi-agent debates, structured tool calls | 🟡 Moderate Risk | ⚡ Standard |
-| **Anthropic Claude 4.8** | Deep literary nuance, emotional dialogue | 🔴 High Sensitivity | 🏷️ Premium |
+Models that aren't baked into the built-in vendor list — including every row below — are reachable through the **Custom** provider: point it at any OpenAI-compatible endpoint and type the model ID yourself. The presets are just a shortcut.
+
+| Model Provider | Best Suited For | Uncensored | Risk Profile | Cost Efficiency |
+| :--- | :--- | :--- | :--- | :--- |
+| **xSI Grok 4.7**<br>*"Omni King"* | Raw fiction, unconstrained creative roleplay, the things every other model flinches at | **5/5** — no brakes | 🟢 0 — clean in every test | ⚡ Mid — not cheap, but not brutal |
+| **Google Gemini 4**<br>Hydrogen / Argon / Neon | Real-time Live duplex voice, long context window, everyday roleplay | **3/5** — permissive | 🟢 0 — with your own API key | 💎 Cheap |
+| **OpenAI GPT-6 / 6.2** | Complex reasoning, multi-agent debates, structured tool calls | **0/5** — refuses, and lectures you about it | 🟢 0 | ⚡ Not cheap |
+| **Anthropic Claude 5.5** family | Deep literary nuance, emotional dialogue, the filthiest prose of the bunch | **5/5** — no brakes | 🔴 5 — key can get nuked; none lost in testing | 😭 Eye-watering |
+| **DeepSeek** | Budget daily driver, solid mid-weight roleplay | **3/5** — enough | 🟢 0 — keep politics out of it | 🥇 Cheapest there is |
 
 ---
 
@@ -151,7 +154,7 @@ Acquire your API keys directly from upstream providers:
 * **Google AI Studio**: [aistudio.google.com](https://aistudio.google.com/app/apikey) *(Recommended for Live calls)*
 * **OpenAI Developer**: [platform.openai.com](https://platform.openai.com/api-keys)
 * **Anthropic Console**: [console.anthropic.com](https://console.anthropic.com/settings/keys)
-* **xAI (Grok) Console**: [console.x.ai](https://console.x.ai/)
+* **SpaceXSI (Grok) Console**: [console.x.ai](https://console.x.ai/)
 * **Mistral API Console**: [console.mistral.ai](https://console.mistral.ai/api-keys/)
 * **ElevenLabs TTS**: [elevenlabs.io](https://elevenlabs.io/)
 * **Tavily Search**: [tavily.com](https://app.tavily.com/)
