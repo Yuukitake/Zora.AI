@@ -10,7 +10,7 @@ import java.net.Proxy
 class CustomApiConfigTest {
     @Test
     fun buildsRoutesFromHostVersionPrefixOrFullCompletionUrl() {
-        listOf("https://vendor.example", "https://vendor.example/v1/", "https://vendor.example/v1/chat/completions")
+        listOf("vendor.example", "https://vendor.example", "https://vendor.example/v1/", "https://vendor.example/v1/chat/completions")
             .forEach { base ->
                 val config = CustomApiConfig(base)
                 assertEquals("https://vendor.example/v1/chat/completions", config.endpoint("chat/completions"))
@@ -28,7 +28,9 @@ class CustomApiConfigTest {
 
     @Test
     fun rejectsMalformedUrlsAndCredentialsInBaseUrl() {
-        listOf("", "vendor.example", "ftp://vendor.example", "https://user:secret@vendor.example",
+        // A bare host is accepted on purpose (https:// is assumed); anything that
+        // smuggles credentials, a query or a fragment into the base URL is not.
+        listOf("", "ftp://vendor.example", "https://user:secret@vendor.example",
             "https://vendor.example?key=secret", "https://vendor.example/#fragment").forEach {
             assertNotNull(CustomApiConfig(it).validationError())
         }

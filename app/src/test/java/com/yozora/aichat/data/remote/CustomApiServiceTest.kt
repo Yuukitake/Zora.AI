@@ -9,6 +9,7 @@ import com.yozora.aichat.ui.chat.SafetyLevel
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.concurrent.TimeUnit
@@ -63,14 +64,24 @@ class CustomApiServiceTest {
     }
 
     @Test
-    fun providerErrorsArePreservedAndNotRetriedOnAnotherHost() = withServer(
-        """{"error":{"message":"Project access denied"}}""", status = 403
+    fun providerErrorsArePreservedAndTheFallbackProbeCarriesNoKey() = withServer(
+        """{"error":{"message":"Project access denied"}}""", status = 403,
+        secondResponse = """{"error":{"message":"Unauthorized"}}""", secondStatus = 401
     ) { config, requests ->
         val result = GeminiChatService().fetchCustomModels(config, "denied-key")
         val failure = result.exceptionOrNull() as ApiHttpException
+
+        // The provider's own error is what surfaces, not the fallback probe's.
         assertEquals(403, failure.statusCode)
         assertEquals("Project access denied", failure.apiMessage)
-        assertEquals(1, requests.requestCount)
+
+        // fetchCustomModels probes the list once more without credentials so a
+        // wrong key still shows the model picker. That probe must not carry the key.
+        val authorized = requests.takeRequest(2, TimeUnit.SECONDS)!!
+        assertEquals("Bearer denied-key", authorized.getHeader("Authorization"))
+        val unauthenticated = requests.takeRequest(2, TimeUnit.SECONDS)!!
+        assertNull(unauthenticated.getHeader("Authorization"))
+        assertEquals(2, requests.requestCount)
     }
 
     @Test
@@ -104,6 +115,8 @@ class CustomApiServiceTest {
         response: String,
         status: Int = 200,
         redirect: String? = null,
+        secondResponse: String? = null,
+        secondStatus: Int = 200,
         block: suspend (CustomApiConfig, MockWebServer) -> Unit
     ) = runBlocking {
         MockWebServer().use { server ->
@@ -111,6 +124,12 @@ class CustomApiServiceTest {
                 .setHeader("Content-Type", "application/json").setBody(response)
             redirect?.let { reply.setHeader("Location", it) }
             server.enqueue(reply)
+            secondResponse?.let {
+                server.enqueue(
+                    MockResponse().setResponseCode(secondStatus)
+                        .setHeader("Content-Type", "application/json").setBody(it)
+                )
+            }
             server.start()
             block(CustomApiConfig(server.url("/gateway/v1").toString()), server)
         }

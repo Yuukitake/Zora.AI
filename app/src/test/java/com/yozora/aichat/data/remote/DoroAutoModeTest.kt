@@ -47,7 +47,8 @@ class DoroAutoModeTest {
     fun googleModelOptionsStartWithDoroAndContainEachFallbackOnce() {
         val options = ApiVendor.Google.modelOptions
 
-        assertEquals(listOf(DORO_AUTO_MODEL_ID) + DORO_AUTO_FALLBACK_MODELS, options)
+        // PRO+ is offered first, then the free chain, each concrete model exactly once.
+        assertEquals(listOf(DORO_AUTO_PRO_MODEL_ID, DORO_AUTO_MODEL_ID) + DORO_AUTO_FALLBACK_MODELS, options)
         assertEquals(options.size, options.toSet().size)
     }
 
@@ -112,20 +113,22 @@ class DoroAutoModeTest {
     }
 
     @Test
-    fun typed503IsRethrownToTheOuterRetryLayerWithoutDowngrading() = runBlocking {
+    fun typed503FallsThroughTheWholeChainBeforeReportingExhaustion() = runBlocking {
         val router = router()
         val attempts = mutableListOf<String>()
         val expected = httpError(status = 503, message = "Service unavailable")
 
-        val actual = assertFailsWithSuspend<ApiHttpException> {
+        val exhausted = assertFailsWithSuspend<DoroAutoExhaustedException> {
             router.run(DORO_AUTO_MODEL_ID, "key-one") { model ->
                 attempts += model
                 throw expected
             }
         }
 
-        assertSame(expected, actual)
-        assertEquals(listOf("gemini-3.6-flash"), attempts)
+        // A 503 is transient, so every fallback gets a turn before the router gives
+        // up; the original error is kept as the cause instead of being swallowed.
+        assertSame(expected, exhausted.cause)
+        assertEquals(DORO_AUTO_FALLBACK_MODELS, attempts)
     }
 
     @Test
@@ -140,8 +143,8 @@ class DoroAutoModeTest {
             }
         }
 
-        assertTrue(exhausted.message.orEmpty().contains("HTTP 429"))
-        assertTrue(exhausted.message.orEmpty().contains("quota", ignoreCase = true))
+        assertTrue(exhausted.message.orEmpty().contains("rate-limited", ignoreCase = true))
+        assertEquals(429, (exhausted.cause as ApiHttpException).statusCode)
         assertEquals(DORO_AUTO_FALLBACK_MODELS, attempts)
         assertEquals(attempts.size, attempts.toSet().size)
     }
